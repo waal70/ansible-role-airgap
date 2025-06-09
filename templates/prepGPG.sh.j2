@@ -1,0 +1,34 @@
+#!/bin/bash
+
+echo Script to prepare GNUPG
+echo Run this with "dot space" in order to set environment variables
+
+export GNUPGHOME=$(mktemp -d -p /run/user/$UID -t $(date +%Y.%m.%d)-XXXX)
+cp ~/gpg.conf $GNUPGHOME/gpg.conf
+
+export IDENTITY="My Cool YubiKey - 2025"
+export KEY_TYPE=rsa4096
+export EXPIRATION=2y
+
+export PASS_GROUPSIZE=6
+export PASS_DELIMITER=-
+export PASS_LENGTH=48
+
+if [ -f ~/certify_pass ]; then
+    echo "Using existing passphrase from ~/certify_pass"
+  
+else
+    echo "No existing passphrase found, generating a new one"
+    NEW_CERTIFY_PASS=$(LC_ALL=C tr -dc "A-Z2-9" < /dev/urandom | \
+    tr -d "IOUS5" | \
+    fold  -w  ${PASS_GROUPSIZE:-4} | \
+    paste -sd ${PASS_DELIMITER:--} - | \
+    head  -c  ${PASS_LENGTH:-29})
+    echo $NEW_CERTIFY_PASS > ~/certify_pass
+fi
+
+export CERTIFY_PASS=$(cat ~/certify_pass)
+
+printf "CERTIFY_PASS is set to: %s\n" "$CERTIFY_PASS"
+echo "GNUPGHOME is set to: $GNUPGHOME"
+echo "Identity is set to: $IDENTITY"

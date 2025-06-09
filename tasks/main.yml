@@ -1,2 +1,49 @@
 ---
 # tasks file for waal70.airgap
+
+- name: Perform an update for the airgapped devices
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 172800 # 2 days
+    autoremove: true
+    autoclean: true
+    upgrade: full
+
+- name: Ensure the required packages are installed
+  ansible.builtin.apt:
+    name:
+      - wget
+      - gnupg2
+      - gnupg-agent
+      - dirmngr
+      - cryptsetup
+      - scdaemon
+      - pcscd
+      - yubikey-personalization
+      - yubikey-manager
+      - git
+    state: present
+
+- name: Ensure the hardened gpg configuration is in place
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/drduh/YubiKey-Guide/master/config/gpg.conf
+    dest: /home/{{ interactive_user }}/gpg.conf
+    mode: '0644'
+    owner: "{{ interactive_user }}"
+    group: "{{ interactive_user }}"
+
+- name: Ensure the README file is in place
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/waal70/home-infra/refs/heads/main/airgap/README.md
+    dest: /home/{{ interactive_user }}/README.md
+    mode: '0644'
+    owner: "{{ interactive_user }}"
+    group: "{{ interactive_user }}"
+
+- name: Place the helper script in the user's home directory
+  ansible.builtin.template:
+    src: prepGPG.sh.j2
+    dest: /home/{{ interactive_user }}/gpg-helper.sh
+    mode: '0755'
+    owner: "{{ interactive_user }}"
+    group: "{{ interactive_user }}"
