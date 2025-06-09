@@ -57,6 +57,7 @@
 
 - name: Place the mount encrypted SD-card texgpg-helper.sh
   ansible.builtin.template:
+    src: mountLUKS.txt.j2
     dest: /home/{{ interactive_user }}/mountLUKS.txt
     mode: '0755'
     owner: "{{ interactive_user }}"
