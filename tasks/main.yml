@@ -22,7 +22,14 @@
       - yubikey-personalization
       - yubikey-manager
       - git
+      - udisks2
     state: present
+
+- name: Ensure the folder to mount the encrypted SD-card is present
+  ansible.builtin.file:
+    path: /media/SDCard
+    state: directory
+    mode: '0755'
 
 - name: Ensure the hardened gpg configuration is in place
   ansible.builtin.get_url:
@@ -44,6 +51,13 @@
   ansible.builtin.template:
     src: prepGPG.sh.j2
     dest: /home/{{ interactive_user }}/gpg-helper.sh
+    mode: '0755'
+    owner: "{{ interactive_user }}"
+    group: "{{ interactive_user }}"
+
+- name: Place the mount encrypted SD-card texgpg-helper.sh
+  ansible.builtin.template:
+    dest: /home/{{ interactive_user }}/mountLUKS.txt
     mode: '0755'
     owner: "{{ interactive_user }}"
     group: "{{ interactive_user }}"

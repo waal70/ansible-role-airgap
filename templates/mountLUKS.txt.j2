@@ -1,0 +1,10 @@
+udisksctl unlock -b /dev/mmcblk0p1
+udisksctl mount -b /dev/mapper/<find luks partition>
+
+If you want to mount without udisks2:
+sudo cryptsetup luksOpen /dev/sda1 my_encrypted_volume
+sudo mount /dev/mapper/my_encrypted_volume /media/my_device
+
+To lock:
+sudo umount /media/my_device
+sudo cryptsetup luksClose my_encrypted_volume
